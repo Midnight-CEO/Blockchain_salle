@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10251e"><title>{{ lot.product }} · {{ lot.lot_code }} | OrigenChain</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="public-body">
+  <header class="public-header"><a class="brand public-brand" href="/"><span class="brand-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4c-8 5-13 12-13 20a13 13 0 0 0 26 0C33 16 28 9 20 4Z"/><path d="M13 25c5 0 11-3 14-10M20 32c-1-7 1-13 7-18"/></svg></span><span><strong>origen<span>chain</span></strong><small>TRACEABILITY NETWORK</small></span></a><span class="public-tag">CONSULTA DE TRAZABILIDAD</span></header>
+  <main class="public-main">
+    <div class="public-hero"><span class="eyebrow light">HISTORIAL DEL PRODUCTO</span><div class="public-title-row"><div><h1>{{ lot.product }} <em>con origen.</em></h1><p>Un recorrido documentado desde la cosecha hasta su destino.</p></div><span class="public-product-badge">{{ lot.product }}</span></div></div>
+    <section class="public-summary panel"><div><span class="eyebrow">IDENTIFICADOR DEL LOTE</span><h2>{{ lot.lot_id }}</h2><p>Código interno: {{ lot.lot_code }}</p></div><div><span class="eyebrow">PRODUCTOR</span><strong>{{ lot.producer }}</strong><p>{{ lot.origin }}</p></div><div><span class="eyebrow">COSECHA</span><strong>{{ lot.harvest_date }}</strong><p>{{ lot.variety or 'Variedad no especificada' }}</p></div><div><span class="eyebrow">PESO REGISTRADO</span><strong>{{ '%.2f'|format(lot.weight_kg) }} kg</strong><p>Dato declarado en el registro</p></div></section>
+    <section class="panel public-timeline-panel"><div class="panel-heading"><div><span class="eyebrow">RECORRIDO REGISTRADO</span><h3>Historia del lote</h3></div><span class="integrity-chip {{ 'ok' if integrity.valid else 'bad' }}">{{ '✓ Libro íntegro' if integrity.valid else '⚠ Revisar integridad' }}</span></div><div class="timeline public-timeline">{% for event in lot.events|reverse %}<article class="timeline-item"><span class="timeline-marker">{% if loop.last %}⌂{% else %}✓{% endif %}</span><div class="timeline-content"><div class="timeline-top"><strong>{{ event.type }}</strong><time>{{ event.timestamp[:16].replace('T', ' ') }} UTC</time></div><p>{{ event.description }}</p><div class="timeline-meta"><span>{{ event.location }}</span><span>{{ event.role }} · {{ event.actor }}</span></div><small class="block-hash">Bloque #{{ event.block_index }} · {{ event.hash[:22] }}…</small></div></article>{% endfor %}</div></section>
+    <div class="public-warning"><span>ⓘ</span><p>La verificación confirma que los registros no han sido alterados en este libro. No certifica por sí sola la veracidad física de la cosecha, el peso o el producto declarado.</p></div>
+    <footer class="public-footer"><a href="/" class="text-button">OrigenChain · plataforma de trazabilidad ↗</a><span>PROTOTIPO ACADÉMICO</span></footer>
+  </main>
+</body>
+</html>
