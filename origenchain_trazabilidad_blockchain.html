@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrigenChain | Plataforma de Trazabilidad B2B</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d', // Agro-industrial dark green
+                        },
+                        earth: {
+                            100: '#f5f5f4',
+                            500: '#a8a29e',
+                            700: '#57534e', // Earthy brown/grey
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; 
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-brand-900 text-white flex flex-col hidden md:flex">
+        <!-- Logo -->
+        <div class="h-16 flex items-center px-6 border-b border-brand-800">
+            <svg class="w-8 h-8 text-brand-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+            </svg>
+            <span class="text-xl font-bold tracking-tight">OrigenChain</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <button onclick="switchTab('resumen')" id="nav-resumen" class="nav-btn w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-brand-800 transition-colors text-brand-100">
+                        <svg class="w-5 h-5 mr-3 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        Resumen
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('lotes')" id="nav-lotes" class="nav-btn w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-brand-800 transition-colors text-brand-100">
+                        <svg class="w-5 h-5 mr-3 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        Lotes
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('registrar')" id="nav-registrar" class="nav-btn w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-brand-800 transition-colors text-brand-100">
+                        <svg class="w-5 h-5 mr-3 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Registrar lote
+                    </button>
+                </li>
+                <li>
+                    <!-- Active state default -->
+                    <button onclick="switchTab('trazabilidad')" id="nav-trazabilidad" class="nav-btn w-full flex items-center px-6 py-3 text-sm font-medium bg-brand-800 border-l-4 border-brand-500 text-white transition-colors">
+                        <svg class="w-5 h-5 mr-3 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                        Consultar trazabilidad
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('libro')" id="nav-libro" class="nav-btn w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-brand-800 transition-colors text-brand-100">
+                        <svg class="w-5 h-5 mr-3 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        Libro Blockchain
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- User Profile minimal -->
+        <div class="p-4 border-t border-brand-800">
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-brand-700 flex items-center justify-center text-sm font-bold">JD</div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium">Juan D.</p>
+                    <p class="text-xs text-brand-100 opacity-75">Tostadora Central</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Top Header for Mobile & Actions -->
+        <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
+            <div class="flex items-center md:hidden">
+                <svg class="w-6 h-6 text-brand-900 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <span class="text-lg font-bold text-brand-900 tracking-tight">OrigenChain</span>
+            </div>
+            <div class="hidden md:block">
+                <h1 class="text-xl font-semibold text-gray-800" id="header-title">Consultar trazabilidad</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-400 hover:text-brand-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Container -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+            
+            <!-- SECTION: Consultar Trazabilidad (Default Active) -->
+            <div id="sec-trazabilidad" class="content-sec fade-in max-w-6xl mx-auto">
+                
+                <!-- Lot Header -->
+                <div class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h2 class="text-2xl font-bold text-gray-900">Lote: OC-CAF-1042</h2>
+                            <span class="bg-brand-50 text-brand-700 text-xs px-2.5 py-1 rounded-full font-medium border border-brand-200">Café Arábica</span>
+                        </div>
+                        <p class="text-earth-700 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Café especial · Pitalito, Huila
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm">
+                            Exportar PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid Layout: Timeline (Left) & Verification/QR (Right) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Left Column: Timeline -->
+                    <div class="lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 border-b pb-2">Historial de Eventos Blockchain</h3>
+                        
+                        <!-- Timeline Component -->
+                        <div class="relative border-l-2 border-brand-200 ml-3 md:ml-4 space-y-8 pb-8">
+                            
+                            <!-- Event 1 -->
+                            <div class="relative pl-8 md:pl-10 group">
+                                <div class="absolute -left-[11px] top-1 bg-white border-4 border-brand-500 w-5 h-5 rounded-full z-10 group-hover:scale-125 transition-transform"></div>
+                                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-bold text-gray-900 text-lg">1. Creación del lote</h4>
+                                        <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded">12 Oct 2026</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">Asociación Cafetera El Roble registra 180 kg de café.</p>
+                                    
+                                    <!-- Blockchain Badge -->
+                                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-2 overflow-hidden">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <svg class="w-4 h-4 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                            <span class="text-xs font-mono text-gray-500 truncate">SHA-256: 8f4a2b9e1c3d5f7a...</span>
+                                        </div>
+                                        <button class="text-brand-600 hover:text-brand-800 text-xs font-medium shrink-0">Ver bloque</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Event 2 -->
+                            <div class="relative pl-8 md:pl-10 group">
+                                <div class="absolute -left-[11px] top-1 bg-white border-4 border-brand-500 w-5 h-5 rounded-full z-10 group-hover:scale-125 transition-transform"></div>
+                                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-bold text-gray-900 text-lg">2. Recepción</h4>
+                                        <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded">14 Oct 2026</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">La cooperativa confirma recepción.</p>
+                                    
+                                    <!-- Blockchain Badge -->
+                                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-2 overflow-hidden">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <svg class="w-4 h-4 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                            <span class="text-xs font-mono text-gray-500 truncate">SHA-256: e4d909c290d0fb1c...</span>
+                                        </div>
+                                        <button class="text-brand-600 hover:text-brand-800 text-xs font-medium shrink-0">Ver bloque</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Event 3 -->
+                            <div class="relative pl-8 md:pl-10 group">
+                                <div class="absolute -left-[11px] top-1 bg-white border-4 border-brand-500 w-5 h-5 rounded-full z-10 group-hover:scale-125 transition-transform"></div>
+                                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-bold text-gray-900 text-lg">3. Despacho</h4>
+                                        <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded">16 Oct 2026</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">El transportador registra el traslado.</p>
+                                    
+                                    <!-- Blockchain Badge -->
+                                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-2 overflow-hidden">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <svg class="w-4 h-4 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                            <span class="text-xs font-mono text-gray-500 truncate">SHA-256: 7f83b1657ff1fc53...</span>
+                                        </div>
+                                        <button class="text-brand-600 hover:text-brand-800 text-xs font-medium shrink-0">Ver bloque</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Event 4 -->
+                            <div class="relative pl-8 md:pl-10 group">
+                                <div class="absolute -left-[11px] top-1 bg-white border-4 border-brand-500 w-5 h-5 rounded-full z-10 group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                                <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-100 hover:shadow-md transition-shadow relative overflow-hidden">
+                                    <!-- Highlight accent -->
+                                    <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+                                    
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-bold text-gray-900 text-lg">4. Consulta</h4>
+                                        <span class="text-xs text-brand-700 bg-brand-50 font-medium px-2 py-1 rounded">Hoy</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">El comprador escanea el QR y revisa el historial.</p>
+                                    
+                                    <!-- Blockchain Badge -->
+                                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-2 overflow-hidden">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <svg class="w-4 h-4 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                            <span class="text-xs font-mono text-gray-500 truncate">SHA-256: 3a2c4e6b8d0f1a3b...</span>
+                                        </div>
+                                        <span class="inline-flex h-2 w-2 rounded-full bg-green-500 animate-pulse shrink-0"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Right Column: QR & Status -->
+                    <div class="lg:col-span-1 space-y-6">
+                        
+                        <!-- Status Card -->
+                        <div class="bg-white rounded-xl shadow-sm border border-brand-200 p-6 flex flex-col items-center text-center">
+                            
+                            <div class="w-16 h-16 bg-brand-50 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold text-gray-900 mb-1">Integridad Validada</h3>
+                            <p class="text-sm text-gray-500 mb-5">El historial de este lote coincide con los registros inmutables.</p>
+                            
+                            <div class="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                Verificado en Blockchain
+                            </div>
+                            
+                            <div class="w-full h-px bg-gray-100 my-5"></div>
+
+                            <!-- QR Code Simulation -->
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Código de acceso público</h4>
+                            <div class="bg-white border-2 border-gray-200 p-3 rounded-lg inline-block mb-4 shadow-sm">
+                                <!-- Minimalistic SVG QR simulation -->
+                                <svg class="w-32 h-32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="100" height="100" fill="white"/>
+                                    <!-- Top Left Corner -->
+                                    <rect x="10" y="10" width="25" height="25" fill="#1f2937"/>
+                                    <rect x="15" y="15" width="15" height="15" fill="white"/>
+                                    <rect x="20" y="20" width="5" height="5" fill="#1f2937"/>
+                                    <!-- Top Right Corner -->
+                                    <rect x="65" y="10" width="25" height="25" fill="#1f2937"/>
+                                    <rect x="70" y="15" width="15" height="15" fill="white"/>
+                                    <rect x="75" y="20" width="5" height="5" fill="#1f2937"/>
+                                    <!-- Bottom Left Corner -->
+                                    <rect x="10" y="65" width="25" height="25" fill="#1f2937"/>
+                                    <rect x="15" y="70" width="15" height="15" fill="white"/>
+                                    <rect x="20" y="75" width="5" height="5" fill="#1f2937"/>
+                                    <!-- Random inner dots (simulated data) -->
+                                    <rect x="45" y="10" width="10" height="10" fill="#1f2937"/>
+                                    <rect x="45" y="25" width="10" height="10" fill="#1f2937"/>
+                                    <rect x="10" y="45" width="10" height="10" fill="#1f2937"/>
+                                    <rect x="25" y="45" width="10" height="5" fill="#1f2937"/>
+                                    <rect x="40" y="40" width="20" height="20" fill="#1f2937"/>
+                                    <rect x="65" y="45" width="10" height="10" fill="#1f2937"/>
+                                    <rect x="80" y="45" width="10" height="15" fill="#1f2937"/>
+                                    <rect x="45" y="65" width="10" height="10" fill="#1f2937"/>
+                                    <rect x="60" y="65" width="15" height="10" fill="#1f2937"/>
+                                    <rect x="80" y="65" width="10" height="10" fill="#1f2937"/>
+                                    <rect x="45" y="80" width="25" height="10" fill="#1f2937"/>
+                                    <rect x="80" y="80" width="10" height="10" fill="#1f2937"/>
+                                </svg>
+                            </div>
+                            
+                            <button class="w-full flex items-center justify-center gap-2 bg-brand-900 hover:bg-brand-800 text-white py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                Imprimir Etiqueta
+                            </button>
+                        </div>
+                        
+                        <!-- Additional Info Card -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h4 class="font-semibold text-gray-900 mb-4 border-b pb-2">Detalles Técnicos</h4>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex justify-between">
+                                    <span class="text-gray-500">Red:</span>
+                                    <span class="font-medium text-gray-800">Hyperledger Fabric</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-500">Contrato:</span>
+                                    <span class="font-mono text-gray-800 text-xs mt-0.5">0x3A21...B890</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-gray-500">Última validación:</span>
+                                    <span class="font-medium text-gray-800">Hace 2 min</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLACEHOLDERS FOR OTHER SECTIONS -->
+            <!-- Resumen -->
+            <div id="sec-resumen" class="content-sec hidden fade-in max-w-4xl mx-auto flex flex-col items-center justify-center h-full text-center py-20">
+                <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-10 h-10 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Panel de Resumen</h2>
+                <p class="text-gray-500 max-w-md">Estadísticas de lotes, movimientos y estado de la red Blockchain. (Módulo en construcción)</p>
+            </div>
+
+            <!-- Lotes -->
+            <div id="sec-lotes" class="content-sec hidden fade-in max-w-4xl mx-auto flex flex-col items-center justify-center h-full text-center py-20">
+                <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-10 h-10 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Directorio de Lotes</h2>
+                <p class="text-gray-500 max-w-md">Listado, búsqueda y consulta general de productos agrícolas registrados.</p>
+            </div>
+
+            <!-- Registrar Lote -->
+            <div id="sec-registrar" class="content-sec hidden fade-in max-w-4xl mx-auto flex flex-col items-center justify-center h-full text-center py-20">
+                <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-10 h-10 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Registrar Nuevo Lote</h2>
+                <p class="text-gray-500 max-w-md">Formulario seguro para la inyección de datos de origen en la red Blockchain.</p>
+            </div>
+
+            <!-- Libro Blockchain -->
+            <div id="sec-libro" class="content-sec hidden fade-in max-w-4xl mx-auto flex flex-col items-center justify-center h-full text-center py-20">
+                <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-10 h-10 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Libro Mayor (Ledger)</h2>
+                <p class="text-gray-500 max-w-md">Visualización cruda de bloques y auditoría mediante verificación criptográfica SHA-256.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        // Configuration for navigation
+        const navItems = {
+            'resumen': { title: 'Panel de Resumen' },
+            'lotes': { title: 'Directorio de Lotes' },
+            'registrar': { title: 'Registrar Lote' },
+            'trazabilidad': { title: 'Consultar trazabilidad' },
+            'libro': { title: 'Libro Mayor Blockchain' }
+        };
+
+        function switchTab(tabId) {
+            // 1. Hide all sections
+            document.querySelectorAll('.content-sec').forEach(sec => {
+                sec.classList.add('hidden');
+            });
+
+            // 2. Remove active styles from all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-800', 'border-l-4', 'border-brand-500', 'text-white');
+                btn.classList.add('hover:bg-brand-800', 'text-brand-100');
+                
+                // Find svg inside and remove active color
+                const svg = btn.querySelector('svg');
+                if(svg) {
+                    svg.classList.remove('text-brand-500');
+                    svg.classList.add('opacity-75');
+                }
+            });
+
+            // 3. Show selected section
+            const activeSection = document.getElementById('sec-' + tabId);
+            if (activeSection) {
+                activeSection.classList.remove('hidden');
+            }
+
+            // 4. Add active styles to selected button
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-800', 'border-l-4', 'border-brand-500', 'text-white');
+                activeBtn.classList.remove('hover:bg-brand-800', 'text-brand-100');
+                
+                const activeSvg = activeBtn.querySelector('svg');
+                if(activeSvg) {
+                    activeSvg.classList.add('text-brand-500');
+                    activeSvg.classList.remove('opacity-75');
+                }
+            }
+
+            // 5. Update Header Title
+            const headerTitle = document.getElementById('header-title');
+            if (headerTitle && navItems[tabId]) {
+                headerTitle.textContent = navItems[tabId].title;
+            }
+        }
+    </script>
+</body>
+</html>
